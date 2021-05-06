@@ -10,6 +10,23 @@ The methodology for calculating PNL is:
 
 Note that this methodology is one way of trying to evaluate the benefit if your trading activity, i.e. doing something versus doing nothing. This does not capture any changes in portfolio value due to general market movements that may result in the appreciation of the value of base assets and quote assets.
 
+## Requirements
+
+- Pandas
+- Numpy
+- Exchange-API(installed in the notebook runtime)
+
+## Usage
+
+### Method 1 :
+
+clone the repo, open the jupyter notebook, fill keys, run the notebook locally
+
+### Method 2 :
+
+Use a ready to go collab notebook :  
+https://colab.research.google.com/drive/1XIC4eHfDtk21eujrpxN8ICYRm_O4XSSO
+
 ## Instructions
 
 Step 1) Input your **_read only_** API keys
@@ -21,6 +38,11 @@ Step 3) Select `Runtime` => `Run all`
 ## Notes
 
 - `% gain and loss` is based on your current balance of base and quote asset. This may not be a comprehensive figure if (1) you have made deposits/withdrawals within the period being analyzed, and (2) if you are trading multiple pairs with overlapping base and quote assets
+
+## Supported Exchanges:
+
+- binance
+- kucoin
 
 ## Comments / bugs / suggestions
 
