@@ -33,9 +33,9 @@ class BaseRestApi(ABC):
             headers = self._headers(headerMeta)
         else:
             headers = {
-                 "Accept": "application/json"
+                "Accept": "application/json"
             }
-            
+
         url = urljoin(self.url, uri)
         if method in ['GET', 'DELETE']:
             response_data = requests.request(
