@@ -12,9 +12,7 @@ class AscendexRestApi(BaseRestApi):
 
     def _headers(self, headerMeta):
         now_time = int(time.time()) * 1000
-        apiPath = 'info'
         str_to_sign = str(now_time) + "+" + headerMeta['path']
-        print(str_to_sign)
         signature = base64.b64encode(
             hmac.new(self.secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
         return {
@@ -35,7 +33,7 @@ class AscendexRestApi(BaseRestApi):
             else:
                 if data and 'code' in data:
                     if data.get('code') == 0:
-                        if data.get('data'):
+                        if 'data' in data:
                             return data['data']
                         else:
                             return data
@@ -45,3 +43,40 @@ class AscendexRestApi(BaseRestApi):
         else:
             raise Exception(
                 "{}-{}".format(response_data.status_code, response_data.text))
+
+    def getHistOrders(self,**kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        headerMeta = {
+            "path":"order/hist"
+        }            
+        return self._request('GET',f"{self.group}/api/pro/v2/order/hist",params=params,headerMeta=headerMeta)
+
+    def getBalance(self,**kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        headerMeta = {
+            "path":"balance"
+        }
+        return self._request('GET', f"{self.group}/api/pro/v1/cash/balance",params = params, headerMeta=headerMeta)
+    
+    def getTicker(self,**kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        return self._request('GET', "api/pro/v1/ticker",params=params,auth=False)
+    
+    
+    def listAsset(self,**kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        return self._request('GET', "api/pro/v2/assets",params=params,auth=False)
+    
+    def listAllProduct(self,**kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        return self._request('GET', "api/pro/v1/products",params=params,auth=False)
