@@ -17,7 +17,7 @@ class BaseRestApi(ABC):
     def _headers(self, headerMeta=None):
         raise NotImplementedError("headers done by exchange specifications")
 
-    def _request(self, method, uri, timeout=5, auth=True, params=None, headerMeta=None):
+    def _request(self, method, uri, timeout=30, auth=True, params=None, headerMeta=None):
         data_json = ''
         if method in ['GET', 'DELETE']:
             if params:
@@ -29,8 +29,13 @@ class BaseRestApi(ABC):
         else:
             if params:
                 data_json = json.dumps(params)
-        print(headerMeta)
-        headers = self._headers(headerMeta)
+        if auth:
+            headers = self._headers(headerMeta)
+        else:
+            headers = {
+                 "Accept": "application/json"
+            }
+            
         url = urljoin(self.url, uri)
         if method in ['GET', 'DELETE']:
             response_data = requests.request(
