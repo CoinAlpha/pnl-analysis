@@ -24,7 +24,6 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         print("we couldn't find price for this asset")
 
     def get_asset_balance(self, asset):
-        print(asset)
         res = self.client.getBalance(asset=asset)
         if(len(res)):
             return float(res[0]['totalBalance'])
@@ -44,7 +43,6 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         df_trades = pd.DataFrame(data)
         if(len(data)):
             seqNum = df_trades.tail(1)['seqNum'].values[0]
-        print(df_trades)
         df_trades = df_trades[df_trades['status'] == 'Filled']
         while True:
             data = self.client.getHistOrders(
@@ -57,7 +55,7 @@ class AscendexClientWrapper(ExchangeClientWrapper):
                 seqNum = df_res.tail(1)['seqNum'].values[0]
                 df_res = df_res[df_res['status'] == 'Filled']
                 df_trades = df_trades.append(df_res, ignore_index=True)
-        return self.format_data(df_trades), df_trades
+        return self.format_data(df_trades)
 
     def format_data(self, df):
         df.loc[(df["side"] == 'Sell'), 'side'] = 'sell'
