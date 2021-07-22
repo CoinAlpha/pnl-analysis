@@ -12,9 +12,9 @@ Note that this methodology is one way of trying to evaluate the benefit if your 
 
 ## Requirements
 
-- Pandas
-- Numpy
-- Exchange-API(installed in the notebook runtime)
+-   Pandas
+-   Numpy
+-   Exchange-API(installed in the notebook runtime)
 
 ## Usage
 
@@ -37,12 +37,13 @@ Step 3) Select `Runtime` => `Run all`
 
 ## Notes
 
-- `% gain and loss` is based on your current balance of base and quote asset. This may not be a comprehensive figure if (1) you have made deposits/withdrawals within the period being analyzed, and (2) if you are trading multiple pairs with overlapping base and quote assets
+-   `% gain and loss` is based on your current balance of base and quote asset. This may not be a comprehensive figure if (1) you have made deposits/withdrawals within the period being analyzed, and (2) if you are trading multiple pairs with overlapping base and quote assets
 
 ## Supported Exchanges:
 
-- binance
-- kucoin
+-   binance ✅
+-   kucoin ❌(07/15/21 changes).
+-   ascendex ✅
 
 ## Comments / bugs / suggestions
 

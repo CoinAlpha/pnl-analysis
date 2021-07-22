@@ -41,9 +41,13 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         data = self.client.getHistOrders(
             account=account, symbol=symbol, startTime=start_date)
         df_trades = pd.DataFrame(data)
-        if(len(data)):
+        if(len(df_trades)):
             seqNum = df_trades.tail(1)['seqNum'].values[0]
-        df_trades = df_trades[df_trades['status'] == 'Filled']
+            df_trades = df_trades[df_trades['status'] == 'Filled']
+        else:
+            raise Exception(
+                f"We couldn't fetch trades for this trading pair {symbol}")
+
         while True:
             data = self.client.getHistOrders(
                 account=account, symbol=symbol, startTime=start_date, seqNum=seqNum)
