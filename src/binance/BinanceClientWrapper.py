@@ -36,48 +36,23 @@ class BinanceClientWrapper(ExchangeClientWrapper):
             return base_asset, quote_asset
         raise Exception("Trading pair is not valid for binance")
 
-    def get_trades(self, symbol, start_dt):
-        df_trades = pd.DataFrame()
-        df = pd.DataFrame(self.client.get_my_trades(
-            symbol=symbol, fromId=0, limit=1))
-        if len(df) == 0:
-            return df_trades
-        first_id = int(df["id"].item())
-        first_dt = pd.to_datetime(df["time"].item(), unit="ms")
-        df_last = pd.DataFrame(
-            self.client.get_my_trades(symbol=symbol, limit=1))
-        last_id = int(df_last["id"].item())
-        last_dt = pd.to_datetime(df_last["time"].item(), unit="ms")
-
-        INTERVAL_COUNT = 10
-        id_interval = int((last_id - first_id) / INTERVAL_COUNT)
-
-        # find the first id from which to begin retrieving data
-        while first_dt < start_dt:
-            next_id = first_id + id_interval
-            df = pd.DataFrame(self.client.get_my_trades(
-                symbol=symbol, fromId=next_id, limit=1))
-            if len(df) > 0:
-                next_id = df["id"].item()
-                next_dt = pd.to_datetime(df["time"].item(), unit="ms")
+    def get_trades(self, symbol, start_date):
+        df_trades = pd.DataFrame(self.client.get_my_trades(
+            symbol=symbol, startTime=start_date))
+        if len(df_trades) == 0:
+            raise Exception(
+                f"We couldn't fetch trades for this trading pair {symbol}")
+        while True:
+            lastId = df_trades.tail(1).id.values[0]
+            df_res = pd.DataFrame(self.client.get_my_trades(
+                symbol=symbol, startTime=start_date, fromId=lastId))
+            newLastId = df_res.tail(1).id.values[0]
+            if(newLastId == lastId):
+                break
             else:
-                next_dt = start_dt
-            first_dt = next_dt
-
-        # Retrieve trades
-        max_id = first_id
-
-        while max_id < last_id:
-            df = pd.DataFrame(self.client.get_my_trades(
-                symbol=symbol, fromId=max_id))
-            if df_trades.empty:
-                df_trades = df
-            else:
-                f_trades = pd.concat([df_trades, df])
-            max_id = df["id"].max() + 1
+                df_trades = pd.concat([df_trades, df_res[1:]])
 
         df_trades["date_time"] = pd.to_datetime(df_trades["time"], unit="ms")
-        df_trades = df_trades[df_trades["date_time"] >= start_dt]
         df_trades.set_index("id", inplace=True, drop=True)
         float_columns = ["price", "qty", "quoteQty", "commission"]
         df_trades[float_columns] = df_trades[float_columns].apply(
