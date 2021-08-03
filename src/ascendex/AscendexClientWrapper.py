@@ -32,9 +32,12 @@ class AscendexClientWrapper(ExchangeClientWrapper):
     def get_all_asset_balances(self):
         res = self.client.getBalance()
         if(len(res)):
-            return pd.DataFrame(res)
+            df = pd.DataFrame(res)
+            for field in ["totalBalance", "availableBalance"]:
+                df[field] = df[field].apply(float)
+            return df
         return pd.DataFrame()
-    
+  
     def symbol_info(self, trading_pair):
         res = self.client.listAllProduct()
         for r in res:
