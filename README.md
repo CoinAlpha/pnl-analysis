@@ -42,7 +42,7 @@ Step 3) Select `Runtime` => `Run all`
 ## Supported Exchanges:
 
 -   binance ✅
--   kucoin ❌(07/15/21 changes).
+-   kucoin ✅
 -   ascendex ✅
 
 ## Comments / bugs / suggestions
