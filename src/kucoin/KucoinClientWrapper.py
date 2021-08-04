@@ -53,21 +53,22 @@ class KucoinClientWrapper(ExchangeClientWrapper):
 
     def get_trades(self, symbol, start_date):
         df_trades = pd.DataFrame()
-        currentPage = 1
+        # currentPage = 1 not working properly and fetches only 5 coming days.
         total_page = float('inf')
-        while currentPage <= total_page:
+        while True:
             rs = self.tradeClient.get_fill_list(
-                'TRADE', symbol=symbol, currentPage=currentPage, pageSize=500, startAt=start_date)
-            currentPage += 1
-            total_page = rs['totalPage']
+                'TRADE', symbol=symbol, pageSize=500, startAt=start_date)
             df_res = pd.DataFrame(rs['items'])
             if(len(df_res) == 0):
                 break
             elif(len(df_trades) == 0):
                 df_trades = df_res
             else:
-                df_res = df_res[df_res['createdAt'] >= int(start_date)]
-                df_trades = df_trades.append(df_res, ignore_index=True)
+                df_res = df_res[df_res['createdAt'] > int(start_date)]
+                if(len(df_res) == 0):
+                    break
+                df_trades = df_res.append(df_trades, ignore_index=True)
+            start_date = df_trades.at[0, 'createdAt']
         if len(df_trades) > 0:
             return self.format_data(df_trades)
         raise Exception(
