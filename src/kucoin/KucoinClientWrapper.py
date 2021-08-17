@@ -61,7 +61,7 @@ class KucoinClientWrapper(ExchangeClientWrapper):
                 break
             elif(len(df_trades) == 0):
                 df_trades = df_res.sort_values(
-                    'createTime', ascending=False, ignore_index=True)
+                    'createdAt', ascending=False, ignore_index=True)
             else:
                 df_res = df_res[df_res['createdAt'] > int(start_date)]
                 if(len(df_res) == 0):
