@@ -12,9 +12,11 @@ Note that this methodology is one way of trying to evaluate the benefit if your 
 
 ## Requirements
 
--   Pandas
--   Numpy
--   Exchange-API(installed in the notebook runtime)
+-   Python 3.x
+
+    > pip install -r requirements.txt
+
+    > jupyter lab
 
 ## Usage
 
@@ -24,16 +26,23 @@ clone the repo, open the jupyter notebook, fill keys, run the notebook locally
 
 ### Method 2 :
 
-Use a ready to go collab notebook :  
-https://colab.research.google.com/drive/1XIC4eHfDtk21eujrpxN8ICYRm_O4XSSO
+Go to colab : https://colab.research.google.com/notebooks/intro.ipynb?utm_source=scs-index#recent=true  
+open from github
+
+### Method 3 :
+
+Use a ready to go collab notebook(recommanded) :  
+https://drive.google.com/file/d/1Z6Q0tX7Czj4w0FnliSiqmi-qUG9AfPeI/view?usp=sharing
 
 ## Instructions
+
+Step 0) Select `Runtime` => `Run all`
 
 Step 1) Input your **_read only_** API keys
 
 Step 2) Input trading pair and start date
 
-Step 3) Select `Runtime` => `Run all`
+Step 3) click start
 
 ## Notes
 
