@@ -38,29 +38,28 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         raise Exception("Trading pair is not valid for ascendex")
 
     def get_trades(self, symbol, start_date, account='cash'):
-        data = self.client.getHistOrders(
-            account=account, symbol=symbol, startTime=start_date)
-        df_trades = pd.DataFrame(data)
-        if(len(df_trades)):
-            seqNum = df_trades.tail(1)['seqNum'].values[0]
-            df_trades = df_trades[df_trades['status'] == 'Filled']
-        else:
-            raise Exception(
-                f"We couldn't fetch trades for this trading pair {symbol}")
-
+        df_trades = pd.DataFrame()
         while True:
-            data = self.client.getHistOrders(
-                account=account, symbol=symbol, startTime=start_date, seqNum=seqNum)
-            df_res = pd.DataFrame(data)
-            lastRetrievedseqNum = df_res.tail(1)['seqNum'].values[0]
-            if(lastRetrievedseqNum == seqNum):
+            rs = self.client.getHistOrders(
+                account=account, symbol=symbol, startTime=start_date)
+            df_res = pd.DataFrame(rs)
+            df_res = df_res[df_res['status'] == 'Filled']
+            if(len(df_res) == 0):
                 break
+            elif(len(df_trades) == 0):
+                df_trades = df_res.sort_values(
+                    'createTime', ascending=False, ignore_index=True)
             else:
-                seqNum = df_res.tail(1)['seqNum'].values[0]
-                df_res = df_res[df_res['status'] == 'Filled']
+                df_res = df_res[df_res['createTime'] > int(start_date)]
+                if(len(df_res) == 0):
+                    break
                 df_trades = df_res.append(df_trades, ignore_index=True)
-        df_trades.reset_index(drop=True, inplace=True)
-        return self.format_data(df_trades)
+            start_date = df_trades.at[0, 'createTime']
+        if len(df_trades) > 0:
+            df_trades.reset_index(drop=True, inplace=True)
+            return self.format_data(df_trades)
+        raise Exception(
+            f"We couldn't fetch trades for this trading pair {symbol}")
 
     def format_data(self, df):
         df.loc[(df["side"] == 'Sell'), 'side'] = 'sell'
