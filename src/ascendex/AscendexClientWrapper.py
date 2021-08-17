@@ -58,7 +58,8 @@ class AscendexClientWrapper(ExchangeClientWrapper):
             else:
                 seqNum = df_res.tail(1)['seqNum'].values[0]
                 df_res = df_res[df_res['status'] == 'Filled']
-                df_trades = df_trades.append(df_res, ignore_index=True)
+                df_trades = df_res.append(df_trades, ignore_index=True)
+        df_trades.reset_index(drop=True, inplace=True)
         return self.format_data(df_trades)
 
     def format_data(self, df):
