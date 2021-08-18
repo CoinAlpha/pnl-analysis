@@ -1,6 +1,7 @@
 from src.abstract.ExchangeClientWrapper import ExchangeClientWrapper
 from src.ascendex.AscendexRestApi import AscendexRestApi
 import pandas as pd
+import time
 
 
 class AscendexClientWrapper(ExchangeClientWrapper):
@@ -38,10 +39,20 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         raise Exception("Trading pair is not valid for ascendex")
 
     def get_trades(self, symbol, start_date, account='cash'):
+        """
+            fetching all orders history filled anbd opened ones.
+            to optimize : fetch only filled (not available in api .v2)
+        """
         df_trades = pd.DataFrame()
         while True:
-            rs = self.client.getHistOrders(
-                account=account, symbol=symbol, startTime=start_date)
+            rs = None
+            try:
+                rs = self.client.getHistOrders(
+                    account=account, symbol=symbol, startTime=start_date)
+            except Exception as e:
+                print("exceed limit rate sleep for 1min 💤")
+                time.sleep(61)
+                continue
             df_res = pd.DataFrame(rs)
             df_res = df_res[df_res['status'] == 'Filled']
             if(len(df_res) == 0):
