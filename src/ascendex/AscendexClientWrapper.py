@@ -53,19 +53,17 @@ class AscendexClientWrapper(ExchangeClientWrapper):
                 print("exceed limit rate sleep for 1min 💤")
                 time.sleep(61)
                 continue
-            df_res = pd.DataFrame(rs)
-            df_res = df_res[df_res['status'] == 'Filled']
+            df_res = pd.DataFrame(rs[1:])
             if(len(df_res) == 0):
                 break
             elif(len(df_trades) == 0):
-                df_trades = df_res.sort_values(
+                start_date = df_res.tail(1)['createTime'].values[0]
+                df_trades = df_res[df_res['status'] == 'Filled'].sort_values(
                     'createTime', ascending=False, ignore_index=True)
             else:
-                df_res = df_res[df_res['createTime'] > int(start_date)]
-                if(len(df_res) == 0):
-                    break
+                start_date = df_res.tail(1)['createTime'].values[0]
+                df_res = df_res[df_res['status'] == 'Filled']
                 df_trades = df_res.append(df_trades, ignore_index=True)
-            start_date = df_trades.at[0, 'createTime']
         if len(df_trades) > 0:
             df_trades.reset_index(drop=True, inplace=True)
             return self.format_data(df_trades)
