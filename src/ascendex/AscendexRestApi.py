@@ -44,39 +44,48 @@ class AscendexRestApi(BaseRestApi):
             raise Exception(
                 "{}-{}".format(response_data.status_code, response_data.text))
 
-    def getHistOrders(self,**kwargs):
+    def getHistOrders(self, **kwargs):
         params = {}
         if kwargs:
             params.update(kwargs)
         headerMeta = {
-            "path":"order/hist"
-        }            
-        return self._request('GET',f"{self.group}/api/pro/v2/order/hist",params=params,headerMeta=headerMeta)
-
-    def getBalance(self,**kwargs):
-        params = {}
-        if kwargs:
-            params.update(kwargs)
-        headerMeta = {
-            "path":"balance"
+            "path": "order/hist"
         }
-        return self._request('GET', f"{self.group}/api/pro/v1/cash/balance",params = params, headerMeta=headerMeta)
-    
-    def getTicker(self,**kwargs):
+        return self._request('GET', f"{self.group}/api/pro/v2/order/hist", params=params, headerMeta=headerMeta)
+
+    def getBalance(self, **kwargs):
         params = {}
         if kwargs:
             params.update(kwargs)
-        return self._request('GET', "api/pro/v1/ticker",params=params,auth=False)
-    
-    
-    def listAsset(self,**kwargs):
+        headerMeta = {
+            "path": "balance"
+        }
+        return self._request('GET', f"{self.group}/api/pro/v1/cash/balance", params=params, headerMeta=headerMeta)
+
+    def listCurrentOrders(kwargs):
         params = {}
         if kwargs:
             params.update(kwargs)
-        return self._request('GET', "api/pro/v2/assets",params=params,auth=False)
-    
-    def listAllProduct(self,**kwargs):
+        headerMeta = {
+            "path": "order/hist/current"
+        }
+        account_category = 'cash' if not params['account_category'] else params['account_category']
+        return self._request('GET', f"{self.group}/api/pro/v1/{account_category}/order/hist/current", params=params, headerMeta=headerMeta)
+
+    def getTicker(self, **kwargs):
         params = {}
         if kwargs:
             params.update(kwargs)
-        return self._request('GET', "api/pro/v1/products",params=params,auth=False)
+        return self._request('GET', "api/pro/v1/ticker", params=params, auth=False)
+
+    def listAsset(self, **kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        return self._request('GET', "api/pro/v2/assets", params=params, auth=False)
+
+    def listAllProduct(self, **kwargs):
+        params = {}
+        if kwargs:
+            params.update(kwargs)
+        return self._request('GET', "api/pro/v1/products", params=params, auth=False)

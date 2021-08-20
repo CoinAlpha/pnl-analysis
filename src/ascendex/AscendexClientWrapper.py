@@ -1,6 +1,7 @@
 from src.abstract.ExchangeClientWrapper import ExchangeClientWrapper
 from src.ascendex.AscendexRestApi import AscendexRestApi
 import pandas as pd
+import time
 
 
 class AscendexClientWrapper(ExchangeClientWrapper):
@@ -47,28 +48,36 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         raise Exception("Trading pair is not valid for ascendex")
 
     def get_trades(self, symbol, start_date, account='cash'):
-        data = self.client.getHistOrders(
-            account=account, symbol=symbol, startTime=start_date)
-        df_trades = pd.DataFrame(data)
-        if(len(df_trades)):
-            seqNum = df_trades.tail(1)['seqNum'].values[0]
-            df_trades = df_trades[df_trades['status'] == 'Filled']
-        else:
-            raise Exception(
-                f"We couldn't fetch trades for this trading pair {symbol}")
-
+        """
+            fetching all orders history filled anbd opened ones.
+            to optimize : fetch only filled (not available in api .v2)
+        """
+        df_trades = pd.DataFrame()
         while True:
-            data = self.client.getHistOrders(
-                account=account, symbol=symbol, startTime=start_date, seqNum=seqNum)
-            df_res = pd.DataFrame(data)
-            lastRetrievedseqNum = df_res.tail(1)['seqNum'].values[0]
-            if(lastRetrievedseqNum == seqNum):
+            rs = None
+            try:
+                rs = self.client.getHistOrders(
+                    account=account, symbol=symbol, startTime=start_date)
+            except Exception as e:
+                print("exceed limit rate sleep for 1min 💤")
+                time.sleep(61)
+                continue
+            df_res = pd.DataFrame(rs[1:])
+            if(len(df_res) == 0):
                 break
+            elif(len(df_trades) == 0):
+                start_date = df_res.tail(1)['createTime'].values[0]
+                df_trades = df_res[df_res['status'] == 'Filled'].sort_values(
+                    'createTime', ascending=False, ignore_index=True)
             else:
-                seqNum = df_res.tail(1)['seqNum'].values[0]
+                start_date = df_res.tail(1)['createTime'].values[0]
                 df_res = df_res[df_res['status'] == 'Filled']
-                df_trades = df_trades.append(df_res, ignore_index=True)
-        return self.format_data(df_trades)
+                df_trades = df_res.append(df_trades, ignore_index=True)
+        if len(df_trades) > 0:
+            df_trades.reset_index(drop=True, inplace=True)
+            return self.format_data(df_trades)
+        raise Exception(
+            f"We couldn't fetch trades for this trading pair {symbol}")
 
     def format_data(self, df):
         df.loc[(df["side"] == 'Sell'), 'side'] = 'sell'

@@ -36,6 +36,8 @@ class KucoinClientWrapper(ExchangeClientWrapper):
         """Give an asset return balance locked or free to use"""
         res = self.client.get_account_list(asset)
         asset_balance = 0
+        if('data' in res):
+            return asset_balance
         for r in res:
             asset_balance += float(r['balance'])
         return asset_balance
@@ -49,28 +51,28 @@ class KucoinClientWrapper(ExchangeClientWrapper):
                 return trading_pair_info["baseCurrency"], trading_pair_info["quoteCurrency"]
         raise Exception("Trading pair is not valid for kucoin")
 
-    def get_trades(self, symbol, start_timestamp):
-        # I reproduce the same way dates are in kucoin API :(
-        start_timestamp *= 1000
+    def get_trades(self, symbol, start_date):
         df_trades = pd.DataFrame()
-        currentPage = 1
-        total_page = float('inf')
-        while currentPage <= total_page:
+        while True:
             rs = self.tradeClient.get_fill_list(
-                'TRADE', symbol=symbol, currentPage=currentPage, pageSize=500)
-            currentPage += 1
-            total_page = rs['totalPage']
+                'TRADE', symbol=symbol, pageSize=500, startAt=start_date)
             df_res = pd.DataFrame(rs['items'])
             if(len(df_res) == 0):
                 break
             elif(len(df_trades) == 0):
-                df_trades = df_res
+                df_trades = df_res.sort_values(
+                    'createdAt', ascending=False, ignore_index=True)
             else:
-                df_res = df_res[df_res['createdAt'] >= int(start_timestamp)]
-                df_trades = df_trades.append(df_res, ignore_index=True)
+                df_res = df_res[df_res['createdAt'] > int(start_date)]
+                if(len(df_res) == 0):
+                    break
+                df_trades = df_res.append(df_trades, ignore_index=True)
+            start_date = df_trades.at[0, 'createdAt']
         if len(df_trades) > 0:
+            df_trades.reset_index(drop=True, inplace=True)
             return self.format_data(df_trades)
-        return pd.DataFrame()
+        raise Exception(
+            f"We couldn't fetch trades for this trading pair {symbol}")
 
     def format_data(self, df):
         df.rename(columns={'size': 'qty', 'funds': 'quoteQty',
