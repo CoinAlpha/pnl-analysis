@@ -51,7 +51,7 @@ Step 3) click start
 ## Supported Exchanges:
 
 -   binance ✅
--   kucoin ❌(07/15/21 changes).
+-   kucoin ✅
 -   ascendex ✅
 
 ## Comments / bugs / suggestions
