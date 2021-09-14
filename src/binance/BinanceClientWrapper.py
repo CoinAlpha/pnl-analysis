@@ -38,27 +38,35 @@ class BinanceClientWrapper(ExchangeClientWrapper):
             return base_asset, quote_asset
         raise Exception("Trading pair is not valid for binance")
 
-    def get_trades(self, symbol, start_date):
-        df_trades = pd.DataFrame(self.client.get_my_trades(
-            symbol=symbol, startTime=start_date))
-        if len(df_trades) == 0:
-            raise Exception(
-                f"We couldn't fetch trades for this trading pair {symbol}")
+    def get_trades(self, symbol, start_date,end_date=round(time.time() * 1000)):
+        df_trades = pd.DataFrame()
+        lastId=0
         while True:
-            lastId = df_trades.tail(1).id.values[0]
             try:
-                df_res = pd.DataFrame(self.client.get_my_trades(
-                    symbol=symbol, startTime=start_date, fromId=lastId))
-                newLastId = df_res.tail(1).id.values[0]
-                if(newLastId == lastId):
+                if lastId != 0:
+                    df_res = pd.DataFrame(self.client.get_my_trades(
+                        symbol=symbol, startTime=start_date, fromId=lastId))
+                else: 
+                    df_res = pd.DataFrame(self.client.get_my_trades(
+                        symbol=symbol, startTime=start_date))
+                        
+                if(len(df_res) == 0 or lastId == df_res.tail(1).id.values[0]):
                     break
+                elif(len(df_trades)==0):
+                    lastId = df_res.tail(1).id.values[0]
+                    df_trades = df_res[df_res['time'] <= end_date]
                 else:
+                    lastId = df_res.tail(1).id.values[0]
+                    df_res = df_res[df_res['time'] <= end_date]
                     df_trades = pd.concat([df_trades, df_res[1:]])
             except BinanceAPIException as err:
                 if err.code == -1003:
                     print("exceed limit rate sleep for 1min 💤")
                     time.sleep(61)
 
+        if len(df_trades) == 0:
+            raise Exception(
+                f"We couldn't fetch trades for this trading pair {symbol}")
         df_trades["date_time"] = pd.to_datetime(df_trades["time"], unit="ms")
         df_trades.set_index("id", inplace=True, drop=True)
         float_columns = ["price", "qty", "quoteQty", "commission"]

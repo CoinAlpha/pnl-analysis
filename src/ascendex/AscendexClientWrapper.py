@@ -47,7 +47,7 @@ class AscendexClientWrapper(ExchangeClientWrapper):
                 return trading_pair_info["baseAsset"], trading_pair_info["quoteAsset"]
         raise Exception("Trading pair is not valid for ascendex")
 
-    def get_trades(self, symbol, start_date, account='cash'):
+    def get_trades(self, symbol, start_date, end_date=round(time.time() * 1000), account='cash'):
         """
             fetching all orders history filled anbd opened ones.
             to optimize : fetch only filled (not available in api .v2)
@@ -57,7 +57,7 @@ class AscendexClientWrapper(ExchangeClientWrapper):
             rs = None
             try:
                 rs = self.client.getHistOrders(
-                    account=account, symbol=symbol, startTime=start_date)
+                    account=account, symbol=symbol, startTime=start_date,endTime=end_date)
             except Exception as e:
                 print("exceed limit rate sleep for 1min 💤")
                 time.sleep(61)

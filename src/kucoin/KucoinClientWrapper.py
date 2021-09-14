@@ -4,7 +4,7 @@ from kucoin.client import User as Client
 from kucoin.client import Market
 from kucoin.client import Trade
 from datetime import datetime, timedelta
-
+import time
 
 class KucoinClientWrapper(ExchangeClientWrapper):
 
@@ -51,11 +51,11 @@ class KucoinClientWrapper(ExchangeClientWrapper):
                 return trading_pair_info["baseCurrency"], trading_pair_info["quoteCurrency"]
         raise Exception("Trading pair is not valid for kucoin")
 
-    def get_trades(self, symbol, start_date):
+    def get_trades(self, symbol, start_date, end_date=round(time.time() * 1000)):
         df_trades = pd.DataFrame()
         while True:
             rs = self.tradeClient.get_fill_list(
-                'TRADE', symbol=symbol, pageSize=500, startAt=start_date)
+                'TRADE', symbol=symbol, pageSize=500, startAt=start_date,endAt=end_date)
             df_res = pd.DataFrame(rs['items'])
             if(len(df_res) == 0):
                 break
