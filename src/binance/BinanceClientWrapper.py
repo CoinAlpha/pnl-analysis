@@ -40,25 +40,19 @@ class BinanceClientWrapper(ExchangeClientWrapper):
 
     def get_trades(self, symbol, start_date,end_date=round(time.time() * 1000)):
         df_trades = pd.DataFrame()
-        lastId=0
-        while True:
+        while start_date<=end_date:
             try:
-                if lastId != 0:
-                    df_res = pd.DataFrame(self.client.get_my_trades(
-                        symbol=symbol, startTime=start_date, fromId=lastId))
-                else: 
-                    df_res = pd.DataFrame(self.client.get_my_trades(
+                df_res = pd.DataFrame(self.client.get_my_trades(
                         symbol=symbol, startTime=start_date))
-                        
-                if(len(df_res) == 0 or lastId == df_res.tail(1).id.values[0]):
+                if(len(df_res) == 0):
                     break
                 elif(len(df_trades)==0):
-                    lastId = df_res.tail(1).id.values[0]
+                    start_date = df_res.iloc[-1]['time']+1
                     df_trades = df_res[df_res['time'] <= end_date]
                 else:
-                    lastId = df_res.tail(1).id.values[0]
+                    start_date = df_res.iloc[-1]['time']+1
                     df_res = df_res[df_res['time'] <= end_date]
-                    df_trades = pd.concat([df_trades, df_res[1:]])
+                    df_trades = pd.concat([df_res,df_trades])
             except BinanceAPIException as err:
                 if err.code == -1003:
                     print("exceed limit rate sleep for 1min 💤")
