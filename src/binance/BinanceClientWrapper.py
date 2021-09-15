@@ -48,10 +48,12 @@ class BinanceClientWrapper(ExchangeClientWrapper):
                     break
                 elif(len(df_trades)==0):
                     start_date = df_res.iloc[-1]['time']+1
-                    df_trades = df_res[df_res['time'] <= end_date]
+                    df_trades = df_res[df_res['time'] <= end_date].sort_values(
+                    'time', ascending=False, ignore_index=True)
                 else:
                     start_date = df_res.iloc[-1]['time']+1
-                    df_res = df_res[df_res['time'] <= end_date]
+                    df_res = df_res[df_res['time'] <= end_date].sort_values(
+                    'time', ascending=False, ignore_index=True)
                     df_trades = pd.concat([df_res,df_trades])
             except BinanceAPIException as err:
                 if err.code == -1003:
