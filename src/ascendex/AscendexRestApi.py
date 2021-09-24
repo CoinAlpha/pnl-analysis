@@ -29,7 +29,7 @@ class AscendexRestApi(BaseRestApi):
             try:
                 data = response_data.json()
             except ValueError:
-                raise Exception(response_data.content)
+                raise Exception(-1,response_data.content)
             else:
                 if data and 'code' in data:
                     if data.get('code') == 0:
@@ -38,11 +38,9 @@ class AscendexRestApi(BaseRestApi):
                         else:
                             return data
                     else:
-                        raise Exception(
-                            "{}-{}".format(response_data.status_code, response_data.text))
+                        raise Exception(response_data.status_code, response_data.text)
         else:
-            raise Exception(
-                "{}-{}".format(response_data.status_code, response_data.text))
+            raise Exception(response_data.status_code, response_data.text)
 
     def getHistOrders(self, **kwargs):
         params = {}

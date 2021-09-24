@@ -36,7 +36,7 @@ class ExchangeClientWrapper(ABC):
         return df, base_asset, quote_asset, base_asset_price, quote_asset_price
 
     @abstractmethod
-    def get_trades(self, symbol, start_date):
+    def get_trades(self, symbol, start_date, end_date):
         pass
 
     @abstractmethod

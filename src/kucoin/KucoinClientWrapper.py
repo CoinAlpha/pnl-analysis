@@ -4,7 +4,7 @@ from kucoin.client import User as Client
 from kucoin.client import Market
 from kucoin.client import Trade
 from datetime import datetime, timedelta
-
+import time
 
 class KucoinClientWrapper(ExchangeClientWrapper):
 
@@ -51,23 +51,21 @@ class KucoinClientWrapper(ExchangeClientWrapper):
                 return trading_pair_info["baseCurrency"], trading_pair_info["quoteCurrency"]
         raise Exception("Trading pair is not valid for kucoin")
 
-    def get_trades(self, symbol, start_date):
+    def get_trades(self, symbol, start_date, end_date=round(time.time() * 1000)):
         df_trades = pd.DataFrame()
-        while True:
+        while start_date<=end_date:
             rs = self.tradeClient.get_fill_list(
                 'TRADE', symbol=symbol, pageSize=500, startAt=start_date)
             df_res = pd.DataFrame(rs['items'])
             if(len(df_res) == 0):
                 break
             elif(len(df_trades) == 0):
-                df_trades = df_res.sort_values(
-                    'createdAt', ascending=False, ignore_index=True)
+                start_date = df_res.iloc[0]['createdAt']+1
+                df_trades = df_res[df_res['createdAt'] <= end_date]
             else:
-                df_res = df_res[df_res['createdAt'] > int(start_date)]
-                if(len(df_res) == 0):
-                    break
+                start_date = df_res.iloc[0]['createdAt']+1
+                df_res = df_res[df_res['createdAt'] <= end_date]
                 df_trades = df_res.append(df_trades, ignore_index=True)
-            start_date = df_trades.at[0, 'createdAt']
         if len(df_trades) > 0:
             df_trades.reset_index(drop=True, inplace=True)
             return self.format_data(df_trades)

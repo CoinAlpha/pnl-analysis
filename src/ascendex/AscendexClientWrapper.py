@@ -47,31 +47,43 @@ class AscendexClientWrapper(ExchangeClientWrapper):
                 return trading_pair_info["baseAsset"], trading_pair_info["quoteAsset"]
         raise Exception("Trading pair is not valid for ascendex")
 
-    def get_trades(self, symbol, start_date, account='cash'):
+    def get_trades(self, symbol, start_date, end_date=round(time.time() * 1000), account='cash'):
         """
             fetching all orders history filled anbd opened ones.
             to optimize : fetch only filled (not available in api .v2)
         """
         df_trades = pd.DataFrame()
-        while True:
+        while start_date<=end_date:
             rs = None
             try:
                 rs = self.client.getHistOrders(
-                    account=account, symbol=symbol, startTime=start_date)
+                    account=account, symbol=symbol, startTime=start_date,endTime=end_date)
             except Exception as e:
-                print("exceed limit rate sleep for 1min 💤")
-                time.sleep(61)
-                continue
-            df_res = pd.DataFrame(rs[1:])
+                code,msg = e.args
+                if(code ==429):
+                    print("exceed limit rate sleep for 1min 💤")
+                    time.sleep(61)
+                    continue
+                else:
+                    raise Exception(e.args)
+            df_res = pd.DataFrame(rs)
             if(len(df_res) == 0):
                 break
             elif(len(df_trades) == 0):
-                start_date = df_res.tail(1)['createTime'].values[0]
+                new_start_date = df_res.iloc[-1]['createTime']+1
+                df_res = df_res[df_res['createTime'] > start_date]
+                start_date = new_start_date
                 df_trades = df_res[df_res['status'] == 'Filled'].sort_values(
                     'createTime', ascending=False, ignore_index=True)
             else:
-                start_date = df_res.tail(1)['createTime'].values[0]
-                df_res = df_res[df_res['status'] == 'Filled']
+                # weird behavior from the API, the start_time is not strictly taken we can find some records < start_time 
+                new_start_date = df_res.iloc[-1]['createTime']+1
+                df_res = df_res[df_res['createTime'] > start_date]
+                if(len(df_res) == 0):
+                        break
+                start_date = new_start_date
+                df_res = df_res[df_res['status'] == 'Filled'].sort_values(
+                    'createTime', ascending=False, ignore_index=True)
                 df_trades = df_res.append(df_trades, ignore_index=True)
         if len(df_trades) > 0:
             df_trades.reset_index(drop=True, inplace=True)
