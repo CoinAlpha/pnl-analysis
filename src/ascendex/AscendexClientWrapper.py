@@ -49,15 +49,20 @@ class AscendexClientWrapper(ExchangeClientWrapper):
 
     def get_trades(self, symbol, start_date, end_date=round(time.time() * 1000), account='cash'):
         """
-            fetching all orders history filled anbd opened ones.
+            fetching all orders history filled and opened ones.
             to optimize : fetch only filled (not available in api .v2)
         """
         df_trades = pd.DataFrame()
+        seqNum = -1
         while start_date<=end_date:
             rs = None
             try:
-                rs = self.client.getHistOrders(
-                    account=account, symbol=symbol, startTime=start_date,endTime=end_date)
+                if seqNum==-1:
+                    rs = self.client.getHistOrders(
+                        account=account, symbol=symbol, startTime=start_date,endTime=end_date)
+                else:
+                    rs = self.client.getHistOrders(
+                        account=account, symbol=symbol,startTime=start_date,endTime=end_date,seqNum=seqNum)
             except Exception as e:
                 code,msg = e.args
                 if(code ==429):
@@ -70,23 +75,16 @@ class AscendexClientWrapper(ExchangeClientWrapper):
             if(len(df_res) == 0):
                 break
             elif(len(df_trades) == 0):
-                new_start_date = df_res.iloc[-1]['createTime']+1
-                df_res = df_res[df_res['createTime'] > start_date]
-                start_date = new_start_date
-                df_trades = df_res[df_res['status'] == 'Filled'].sort_values(
-                    'createTime', ascending=False, ignore_index=True)
+                seqNum = df_res.iloc[-1]['seqNum']+1
+                df_trades = df_res[df_res['status'] == 'Filled']
             else:
-                # weird behavior from the API, the start_time is not strictly taken we can find some records < start_time 
-                new_start_date = df_res.iloc[-1]['createTime']+1
-                df_res = df_res[df_res['createTime'] > start_date]
-                if(len(df_res) == 0):
-                        break
-                start_date = new_start_date
-                df_res = df_res[df_res['status'] == 'Filled'].sort_values(
-                    'createTime', ascending=False, ignore_index=True)
+                seqNum = df_res.iloc[-1]['seqNum']+1
+                df_res = df_res[df_res['status'] == 'Filled']
                 df_trades = df_res.append(df_trades, ignore_index=True)
         if len(df_trades) > 0:
             df_trades.reset_index(drop=True, inplace=True)
+            df_trades.sort_values(
+                    'createTime', ascending=False, ignore_index=True,inplace=True)
             return self.format_data(df_trades)
         raise Exception(
             f"We couldn't fetch trades for this trading pair {symbol}")
