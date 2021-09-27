@@ -84,7 +84,7 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         if len(df_trades) > 0:
             df_trades.reset_index(drop=True, inplace=True)
             df_trades.sort_values(
-                    'createTime', ascending=False, ignore_index=True,inplace=True)
+                    'lastExecTime', ascending=False, ignore_index=True,inplace=True)
             return self.format_data(df_trades)
         raise Exception(
             f"We couldn't fetch trades for this trading pair {symbol}")
@@ -94,7 +94,7 @@ class AscendexClientWrapper(ExchangeClientWrapper):
         df.loc[(df["side"] == 'Buy'), 'side'] = 'buy'
 
         df.rename(columns={
-            "createTime": "date_time",
+            "lastExecTime": "date_time",
             "orderQty": "qty",
             "fee": "commission",
             "feeAsset": "commissionAsset",
