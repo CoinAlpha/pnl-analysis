@@ -3,7 +3,8 @@ from binance.client import Client
 import pandas as pd
 from binance.exceptions import BinanceAPIException
 import time
-
+import requests
+import json
 
 class BinanceClientWrapper(ExchangeClientWrapper):
 
@@ -21,8 +22,13 @@ class BinanceClientWrapper(ExchangeClientWrapper):
                 res = self.client.get_ticker(symbol=f"{asset}{c}")
                 return float(res['lastPrice'])
             except:
-                '"The symbol combination not supported"'
-        print("we couldn't find price for this asset")
+                # edge cases like PIVX, there is no PIVXUSDT pair on binance
+                endpoint = f"https://min-api.cryptocompare.com/data/price?fsym={asset}&tsyms=USD"
+                res = requests.get(endpoint)
+                res_json = json.loads(res.text)
+                return(res_json["USD"])
+
+        raise Exception("we couldn't find price for this asset")
 
     def get_asset_balance(self, asset):
         """Give an asset return balance locked or free to use"""
