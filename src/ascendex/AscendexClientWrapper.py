@@ -76,10 +76,10 @@ class AscendexClientWrapper(ExchangeClientWrapper):
                 break
             elif(len(df_trades) == 0):
                 seqNum = df_res.iloc[-1]['seqNum']+1
-                df_trades = df_res[df_res['status'] == 'Filled']
+                df_trades = df_res[df_res['fillQty'] != '0']
             else:
                 seqNum = df_res.iloc[-1]['seqNum']+1
-                df_res = df_res[df_res['status'] == 'Filled']
+                df_res = df_res[df_res['fillQty'] != '0']
                 df_trades = df_res.append(df_trades, ignore_index=True)
         if len(df_trades) > 0:
             df_trades.reset_index(drop=True, inplace=True)
