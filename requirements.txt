@@ -1,4 +1,5 @@
 binance==0.3
+gate-api==4.24.0
 ipywidgets==7.6.3
 jupyterlab==3.1.7
 kucoin-python==1.0.11
