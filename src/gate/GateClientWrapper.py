@@ -1,6 +1,5 @@
 from src.abstract.ExchangeClientWrapper import ExchangeClientWrapper
-from gate_api import ApiClient, SpotApi, WalletApi, Configuration
-import numpy as np
+from gate_api import ApiClient, SpotApi, Configuration
 import pandas as pd
 from gate_api.exceptions import GateApiException, ApiException
 import time
@@ -74,7 +73,7 @@ class GateClientWrapper(ExchangeClientWrapper):
         while start_date<=end_date:
             try:
                 trades = self.spotClient.list_my_trades(
-                    symbol, limit=500, _from=start_date, to=end_date):
+                    symbol, limit=500, _from=start_date, to=end_date)
 
                 trades = [ trade.to_dict() for trade in trades ]
                 for trade in trades:
@@ -86,10 +85,10 @@ class GateClientWrapper(ExchangeClientWrapper):
                 if(len(df_res) == 0):
                     break
                 elif(len(df_trades) == 0):
-                    start_date = df_res.iloc[0]['create_time']+1
+                    start_date = int(df_res.iloc[0]['create_time'])+1
                     df_trades = df_res[df_res['create_time'] <= end_date]
                 else:
-                    start_date = df_res.iloc[0]['create_time']+1
+                    start_date = int(df_res.iloc[0]['create_time'])+1
                     df_res = df_res[df_res['create_time'] <= end_date]
                     df_trades = df_res.append(df_trades, ignore_index=True)
 
