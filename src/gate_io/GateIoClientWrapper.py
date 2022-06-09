@@ -6,11 +6,11 @@ import time
 import requests
 import json
 
-class GateClientWrapper(ExchangeClientWrapper):
+class GateIoClientWrapper(ExchangeClientWrapper):
 
-    def __init__(self, gateClient, gateSpot):
-        super().__init__(gateClient)
-        self.spotClient = gateSpot
+    def __init__(self, gateIoClient, gateIoSpot):
+        super().__init__(gateIoClient)
+        self.spotClient = gateIoSpot
 
 
     @staticmethod
@@ -19,9 +19,9 @@ class GateClientWrapper(ExchangeClientWrapper):
             key = api_key,
             secret = api_secret
         )
-        gateClient = ApiClient(configuration)
-        gateSpot = SpotApi(gateClient)
-        return GateClientWrapper(gateClient, gateSpot)
+        gateIoClient = ApiClient(configuration)
+        gateIoSpot = SpotApi(gateIoClient)
+        return GateIoClientWrapper(gateIoClient, gateIoSpot)
 
 
     def usd_price_for(self, asset):
