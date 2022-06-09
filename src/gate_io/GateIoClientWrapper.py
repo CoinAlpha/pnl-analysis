@@ -12,7 +12,6 @@ class GateIoClientWrapper(ExchangeClientWrapper):
         super().__init__(gateIoClient)
         self.spotClient = gateIoSpot
 
-
     @staticmethod
     def createInstance(api_key, api_secret):
         configuration = Configuration(
@@ -22,7 +21,6 @@ class GateIoClientWrapper(ExchangeClientWrapper):
         gateIoClient = ApiClient(configuration)
         gateIoSpot = SpotApi(gateIoClient)
         return GateIoClientWrapper(gateIoClient, gateIoSpot)
-
 
     def usd_price_for(self, asset):
         stable_coins = ['USDT', 'USDC', 'BUSD', 'TUSD']
@@ -64,7 +62,6 @@ class GateIoClientWrapper(ExchangeClientWrapper):
             print("Gate api exception, label: %s, message: %s\n" % (ex.label, ex.message))
         except ApiException as e:
             print("Exception when calling SpotApi->list_currency_pairs: %s\n" % e)
-
 
     def get_trades(self, symbol, start_date,end_date=round(time.time() * 1000)):
         df_trades = pd.DataFrame()
