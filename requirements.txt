@@ -18,6 +18,7 @@ debugpy==1.4.1
 decorator==5.0.9
 defusedxml==0.7.1
 entrypoints==0.3
+gate-api==4.24.0
 idna==3.2
 ipykernel==6.2.0
 ipython==7.26.0

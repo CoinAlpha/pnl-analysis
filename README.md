@@ -53,6 +53,7 @@ Step 3) click start
 -   binance ✅
 -   kucoin ✅
 -   ascendex ✅
+-   gate_io ✅
 
 ## Comments / bugs / suggestions
 
