@@ -26,12 +26,12 @@ clone the repo, open the jupyter notebook, fill keys, run the notebook locally
 
 ### Method 2 :
 
-Go to colab : https://colab.research.google.com/notebooks/intro.ipynb?utm_source=scs-index#recent=true  
+Go to colab : https://colab.research.google.com/notebooks/intro.ipynb?utm_source=scs-index#recent=true
 open from github
 
 ### Method 3 :
 
-Use a ready to go collab notebook(recommanded) :  
+Use a ready to go collab notebook(recommanded) :
 https://drive.google.com/file/d/1Z6Q0tX7Czj4w0FnliSiqmi-qUG9AfPeI/view?usp=sharing
 
 ## Instructions
@@ -56,5 +56,5 @@ Step 3) click start
 
 ## Comments / bugs / suggestions
 
-Please email [carlo@hummingbot.io](mailto:carlol@hummingbot.io?subject=Colab:%20Performance%20Sheet).  
+Please email [carlo@hummingbot.io](mailto:carlol@hummingbot.io?subject=Colab:%20Performance%20Sheet).
 Please email [amine@hummingbot.io](mailto:amine@hummingbot.io?subject=Colab:%20Performance%20Sheet).
