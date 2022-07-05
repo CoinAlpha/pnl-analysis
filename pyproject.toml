@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "pnl-analysis"
+version = "0.1.0"
+description = "Fetch trades from exchanges and calculate PNL"
+license = "Apache License"
+authors = ["Coinalpha"]
+readme = "README.md"
+repository = "https://github.com/CoinAlpha/pnl-analysis"
+
+keywords = []
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+]
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 120
