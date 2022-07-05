@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 120
+
+ignore = B008,W503,N805
